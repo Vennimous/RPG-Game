@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="character-detail">
+    <div class="character-header">
+        <div class="character-portrait">
+            {% if character.portrait %}
+            <img src="{{ url_for('static', filename='images/portraits/' + character.portrait) }}" alt="{{ character.name }}">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/portraits/default_' + character.class|lower + '.png') }}" alt="{{ character.name }}">
+            {% endif %}
+        </div>
+        <div class="character-title">
+            <h1>{{ character.name }}</h1>
+            <p class="subtitle">Level {{ character.level }} {{ character.race }} {{ character.class }}</p>
+            
+            <div class="xp-bar">
+                <div class="xp-fill" style="width: {{ (character.xp / next_level_xp * 100)|int if next_level_xp > 0 else 100 }}%"></div>
+                <span class="xp-text">XP: {{ character.xp|default(0) }}/{{ next_level_xp }}</span>
+            </div>
+            
+            {% if can_level_up %}
+            <a href="{{ url_for('level_up', character_index=character_index) }}" class="button level-button">Level Up!</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stat-section">
+            <h2>Health & Defense</h2>
+            <div class="health-bar large">
+                <div class="health-fill" style="width: {{ (character.hp / character.max_hp * 100)|int }}%"></div>
+                <span class="health-text">HP: {{ character.hp }}/{{ character.max_hp }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Armor Class:</span>
+                <span class="stat-value">{{ character.ac }}</span>
+            </div>
+        </div>
+        
+        <div class="stat-section">
+            <h2>Attributes</h2>
+            <div class="attributes-grid">
+                <div class="attribute">
+                    <div class="attribute-name">STR</div>
+                    <div class="attribute-value">{{ character.attributes.strength }}</div>
+                    <div class="attribute-mod">{{ ((character.attributes.strength - 10) // 2)|string|replace('-', '−') }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">DEX</div>
+                    <div class="attribute-value">{{ character.attributes.dexterity }}</div>
+                    <div class="attribute-mod">{{ ((character.attributes.dexterity - 10) // 2)|string|replace('-', '−') }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">CON</div>
+                    <div class="attribute-value">{{ character.attributes.constitution }}</div>
+                    <div class="attribute-mod">{{ ((character.attributes.constitution - 10) // 2)|string|replace('-', '−') }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">INT</div>
+                    <div class="attribute-value">{{ character.attributes.intelligence }}</div>
+                    <div class="attribute-mod">{{ ((character.attributes.intelligence - 10) // 2)|string|replace('-', '−') }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">WIS</div>
+                    <div class="attribute-value">{{ character.attributes.wisdom }}</div>
+                    <div class="attribute-mod">{{ ((character.attributes.wisdom - 10) // 2)|string|replace('-', '−') }}</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">CHA</div>
+                    <div class="attribute-value">{{ character.attributes.charisma }}</div>
+                    <div class="attribute-mod">{{ ((character.attributes.charisma - 10) // 2)|string|replace('-', '−') }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-section">
+            <h2>Equipment</h2>
+            <div class="equipment-list">
+                <div class="equipment-item">
+                    <span class="equipment-label">Weapon:</span>
+                    <span class="equipment-value">{{ character.equipment.weapon }}</span>
+                </div>
+                <div class="equipment-item">
+                    <span class="equipment-label">Armor:</span>
+                    <span class="equipment-value">{{ character.equipment.armor }}</span>
+                </div>
+                <div class="equipment-item">
+                    <span class="equipment-label">Item:</span>
+                    <span class="equipment-value">{{ character.equipment.item }}</span>
+                </div>
+                <div class="equipment-item">
+                    <span class="equipment-label">Gold:</span>
+                    <span class="equipment-value">{{ character.gold|default(0) }}</span>
+                </div>
+            </div>
+        </div>
+        
+        {% if character.class in ['Mage', 'Priest'] and character.spells %}
+        <div class="stat-section">
+            <h2>Spells</h2>
+            <div class="spell-slots">
+                {% for slot, count in character.current_spell_slots.items() %}
+                <div class="spell-slot">
+                    <span class="slot-label">{{ slot|replace('_', ' ')|title }}:</span>
+                    <span class="slot-value">{{ count }}/{{ character.spell_slots[slot] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="spell-list">
+                {% for spell in character.spells %}
+                <div class="spell-item">{{ spell }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if character.inventory %}
+        <div class="stat-section">
+            <h2>Inventory</h2>
+            <div class="inventory-list">
+                {% for item in character.inventory %}
+                <div class="inventory-item">
+                    <span class="item-name">{{ item.name }}</span>
+                    {% if item.type == 'weapon' %}
+                    <span class="item-property">Damage: {{ item.damage }}</span>
+                    {% elif item.type in ['armor', 'shield'] %}
+                    <span class="item-property">AC Bonus: +{{ item.ac_bonus }}</span>
+                    {% elif item.type == 'item' %}
+                    <span class="item-property">Effect: {{ item.effect }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('start_adventure') }}" class="button">Back to Town</a>
+        <!-- Add more character actions here -->
+    </div>
+</div>
+
+<style>
+    .character-detail {
+        padding: 20px 0;
+    }
+    
+    .character-header {
+        display: flex;
+        margin-bottom: 30px;
+    }
+    
+    .character-portrait {
+        width: 120px;
+        height: 120px;
+        margin-right: 20px;
+    }
+    
+    .character-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    
+    .character-title {
+        flex-grow: 1;
+    }
+    
+    .character-title h1 {
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        color: #666;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .xp-bar {
+        height: 20px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        margin: 15px 0;
+    }
+    
+    .xp-fill {
+        height: 100%;
+        background-color: #3f51b5;
+    }
+    
+    .xp-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 20px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .level-button {
+        background-color: #ff9800;
+    }
+    
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-section {
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        padding: 15px;
+        border: 1px solid #ddd;
+    }
+    
+    .stat-section h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .health-bar.large {
+        height: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .health-fill {
+        height: 100%;
+        background-color: #4CAF50;
+    }
+    
+    .health-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 25px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .attributes-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .attribute {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .attribute-name {
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    
+    .attribute-value {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+    
+    .attribute-mod {
+        background-color: #4CAF50;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 12px;
+        text-align: center;
+        line-height: 24px;
+        margin-top: 5px;
+    }
+    
+    .stat-item, .equipment-item, .spell-slot {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .stat-label, .equipment-label, .slot-label {
+        font-weight: bold;
+    }
+    
+    .spell-list, .inventory-list {
+        margin-top: 15px;
+    }
+    
+    .spell-item, .inventory-item {
+        background-color: #f0f0f0;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+    
+    .inventory-item {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="adventure-container">
+    <div class="adventure-header">
+        <h1>Adventure Begins!</h1>
+        <p class="description">Your party stands ready for their next quest.</p>
+    </div>
+    
+    <div class="party-container">
+        <h2>Your Party</h2>
+        <div class="party-grid">
+            {% for i, character in enumerate(characters) %}
+            <div class="character-card">
+                <div class="character-portrait">
+                    {% if character.portrait %}
+                    <img src="{{ url_for('static', filename='images/portraits/' + character.portrait) }}" alt="{{ character.name }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/portraits/default_' + character.class|lower + '.png') }}" alt="{{ character.name }}">
+                    {% endif %}
+                </div>
+                <div class="character-info">
+                    <h3>{{ character.name }}</h3>
+                    <p>{{ character.race }} {{ character.class }} (Level {{ character.level }})</p>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: {{ (character.hp / character.max_hp * 100)|int }}%"></div>
+                        <span class="health-text">HP: {{ character.hp }}/{{ character.max_hp }}</span>
+                    </div>
+                    <p>Gold: {{ character.gold }}</p>
+                    <a href="{{ url_for('view_character', character_index=i) }}" class="button small">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="adventure-actions">
+        <h2>Available Actions</h2>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">
+                    <img src="{{ url_for('static', filename='images/icons/dungeon.png') }}" alt="Dungeon">
+                </div>
+                <div class="action-info">
+                    <h3>Enter the Wilderness</h3>
+                    <p>Brave the unknown in search of treasure and glory!</p>
+                    <div class="action-buttons">
+                        <a href="{{ url_for('enter_dungeon') }}" class="button">Random Adventure</a>
+                        <a href="{{ url_for('choose_dungeon') }}" class="button">Custom Adventure</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">
+                    <img src="{{ url_for('static', filename='images/icons/inn.png') }}" alt="Inn">
+                </div>
+                <div class="action-info">
+                    <h3>Visit the Inn</h3>
+                    <p>Rest, recover, and hear about special quests.</p>
+                    <a href="{{ url_for('visit_inn') }}" class="button">Go to the Inn</a>
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">
+                    <img src="{{ url_for('static', filename='images/icons/shop.png') }}" alt="Shop">
+                </div>
+                <div class="action-info">
+                    <h3>Visit the Shop</h3>
+                    <p>Buy equipment, potions, and magical items.</p>
+                    <a href="{{ url_for('visit_shop') }}" class="button">Go to the Shop</a>
+                </div>
+            </div>
+            
+            <div class="action-card">
+                <div class="action-icon">
+                    <img src="{{ url_for('static', filename='images/icons/character.png') }}" alt="New Character">
+                </div>
+                <div class="action-info">
+                    <h3>Create a New Character</h3>
+                    <p>Add another hero to your party.</p>
+                    <a href="{{ url_for('create_party') }}" class="button">Create Character</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .adventure-container {
+        padding: 20px 0;
+    }
+    
+    .adventure-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .description {
+        color: #666;
+        font-size: 1.1em;
+    }
+    
+    .party-container {
+        margin-bottom: 40px;
+    }
+    
+    .party-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .character-card {
+        display: flex;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .character-portrait {
+        width: 80px;
+        height: 80px;
+        margin-right: 15px;
+    }
+    
+    .character-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .character-info {
+        flex-grow: 1;
+    }
+    
+    .character-info h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .health-bar {
+        height: 15px;
+        background-color: #f0f0f0;
+        border-radius: 7px;
+        overflow: hidden;
+        position: relative;
+        margin: 10px 0;
+    }
+    
+    .health-fill {
+        height: 100%;
+        background-color: #4CAF50;
+    }
+    
+    .health-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 15px;
+        font-size: 12px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .button.small {
+        padding: 5px 10px;
+        font-size: 0.9em;
+    }
+    
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .action-card {
+        display: flex;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .action-icon {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .action-icon img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    .action-info {
+        flex-grow: 1;
+    }
+    
+    .action-info h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}

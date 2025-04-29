@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-menu">
+    <h1>RPG Adventure Game</h1>
+    <div class="menu-options">
+        {% if save_exists %}
+        <a href="{{ url_for('continue_game') }}" class="button">Continue Adventure</a>
+        {% endif %}
+        <a href="{{ url_for('new_game') }}" class="button">New Adventure</a>
+    </div>
+</div>
+
+<style>
+    .main-menu {
+        text-align: center;
+        padding: 40px 0;
+    }
+    
+    .menu-options {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .button {
+        width: 200px;
+        padding: 15px 0;
+        font-size: 18px;
+    }
+</style>
+{% endblock %}

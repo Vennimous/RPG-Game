@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="game-over-container">
+    <h1>Game Over</h1>
+    <p class="subtitle">Your party has been defeated!</p>
+    
+    <div class="defeated-party">
+        <h2>Your Party:</h2>
+        <div class="character-grid">
+            {% for character in characters %}
+            <div class="character-card">
+                <div class="character-portrait defeated">
+                    {% if character.portrait %}
+                    <img src="{{ url_for('static', filename='images/portraits/' + character.portrait) }}" alt="{{ character.name }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/portraits/default_' + character.class|lower + '.png') }}" alt="{{ character.name }}">
+                    {% endif %}
+                </div>
+                <div class="character-info">
+                    <h3>{{ character.name }}</h3>
+                    <p>Level {{ character.level }} {{ character.race }} {{ character.class }}</p>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: 0%"></div>
+                        <span class="health-text">HP: 0/{{ character.max_hp }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="game-over-message">
+        <p>Your adventure has come to an unfortunate end. The heroes have fallen, but their legacy will live on.</p>
+        <p>Back at the inn, tales of your brave deeds will be told, inspiring a new generation of adventurers.</p>
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('rest_at_inn') }}" class="button primary">Revive at Inn (50 gold)</a>
+        <a href="{{ url_for('start_adventure') }}" class="button">Return to Town</a>
+    </div>
+</div>
+
+<style>
+    .game-over-container {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    
+    h1 {
+        color: #f44336;
+        font-size: 3em;
+        margin-bottom: 10px;
+    }
+    
+    .subtitle {
+        color: #666;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+    }
+    
+    .defeated-party {
+        margin-bottom: 30px;
+    }
+    
+    .character-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .character-card {
+        display: flex;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .character-portrait {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+    }
+    
+    .character-portrait.defeated {
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+    
+    .character-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .character-info {
+        flex-grow: 1;
+        text-align: left;
+    }
+    
+    .character-info h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .character-info p {
+        margin: 0 0 10px 0;
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .health-bar {
+        height: 15px;
+        background-color: #f0f0f0;
+        border-radius: 7px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .health-fill {
+        height: 100%;
+        background-color: #f44336;
+    }
+    
+    .health-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 15px;
+        font-size: 12px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .game-over-message {
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .game-over-message p {
+        margin: 10px 0;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        color: white;
+        background-color: #4CAF50;
+        transition: background-color 0.3s;
+    }
+    
+    .button:hover {
+        background-color: #3e8e41;
+    }
+    
+    .button.primary {
+        background-color: #f44336;
+    }
+    
+    .button.primary:hover {
+        background-color: #d32f2f;
+    }
+</style>
+{% endblock %}

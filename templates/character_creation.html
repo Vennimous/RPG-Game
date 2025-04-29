@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Create Your Character</h1>
+
+<form action="/create_character" method="POST" id="characterForm">
+    <div class="form-group">
+        <label>Character Name:</label>
+        <input type="text" name="name" required>
+    </div>
+    
+    <div class="form-group">
+        <label>Race:</label>
+        <select name="race" id="raceSelect">
+            <option value="">-- Select Race --</option>
+            {% for race_name, race_data in races.items() %}
+            <option value="{{ race_name }}">{{ race_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <div id="raceInfo" class="info-box hidden">
+            <h3>Race Bonuses</h3>
+            <div id="raceDescription"></div>
+            <div id="raceBonuses" class="bonuses"></div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Class:</label>
+        <select name="char_class" id="classSelect">
+            <option value="">-- Select Class --</option>
+            {% for class_name, class_data in classes.items() %}
+            <option value="{{ class_name }}">{{ class_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <div id="classInfo" class="info-box hidden">
+            <h3>Class Bonuses</h3>
+            <div id="classDescription"></div>
+            <div id="classBonuses" class="bonuses"></div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Portrait:</label>
+        <div id="portraitContainer" class="portrait-container hidden">
+            <!-- Portraits will be populated via JavaScript -->
+        </div>
+        <input type="hidden" name="portrait" id="selectedPortrait">
+    </div>
+    
+    <div class="attribute-display">
+        <h3>Base Attributes</h3>
+        <div class="attributes">
+            <div class="attribute">Strength: <span id="str">10</span></div>
+            <div class="attribute">Dexterity: <span id="dex">10</span></div>
+            <div class="attribute">Constitution: <span id="con">10</span></div>
+            <div class="attribute">Intelligence: <span id="int">10</span></div>
+            <div class="attribute">Wisdom: <span id="wis">10</span></div>
+            <div class="attribute">Charisma: <span id="cha">10</span></div>
+        </div>
+    </div>
+    
+    <button type="submit" class="button">Create Character</button>
+</form>
+
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .info-box {
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .bonuses {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .bonus {
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+    }
+    
+    .attribute-display {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+    
+    .attributes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .portrait-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .portrait {
+        width: 80px;
+        height: 80px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    .portrait.selected {
+        border-color: #4CAF50;
+    }
+</style>
+
+<script>
+    // Class and race data from server
+    const classes = {{ classes|tojson }};
+    const races = {{ races|tojson }};
+    const portraits = {{ portraits|tojson }};
+    
+    // Base attributes
+    let attributes = {
+        strength: 10,
+        dexterity: 10,
+        constitution: 10,
+        intelligence: 10,
+        wisdom: 10,
+        charisma: 10
+    };
+    
+    // Elements
+    const raceSelect = document.getElementById('raceSelect');
+    const classSelect = document.getElementById('classSelect');
+    const raceInfo = document.getElementById('raceInfo');
+    const classInfo = document.getElementById('classInfo');
+    const raceDescription = document.getElementById('raceDescription');
+    const raceBonuses = document.getElementById('raceBonuses');
+    const classDescription = document.getElementById('classDescription');
+    const classBonuses = document.getElementById('classBonuses');
+    const portraitContainer = document.getElementById('portraitContainer');
+    const selectedPortrait = document.getElementById('selectedPortrait');
+    
+    // Attribute displays
+    const strDisplay = document.getElementById('str');
+    const dexDisplay = document.getElementById('dex');
+    const conDisplay = document.getElementById('con');
+    const intDisplay = document.getElementById('int');
+    const wisDisplay = document.getElementById('wis');
+    const chaDisplay = document.getElementById('cha');
+    
+    // Update attributes based on race and class selection
+    function updateAttributes() {
+        // Reset to base attributes
+        attributes = {
+            strength: 10,
+            dexterity: 10,
+            constitution: 10,
+            intelligence: 10,
+            wisdom: 10,
+            charisma: 10
+        };
+        
+        // Apply race bonuses
+        const selectedRace = raceSelect.value;
+        if (selectedRace && races[selectedRace]) {
+            const raceBonuses = races[selectedRace].bonuses;
+            for (const attr in raceBonuses) {
+                attributes[attr] += raceBonuses[attr];
+            }
+        }
+        
+        // Apply class bonuses
+        const selectedClass = classSelect.value;
+        if (selectedClass && classes[selectedClass]) {
+            const classBonuses = classes[selectedClass].bonuses;
+            for (const attr in classBonuses) {
+                attributes[attr] += classBonuses[attr];
+            }
+        }
+        
+        // Update display
+        strDisplay.textContent = attributes.strength;
+        dexDisplay.textContent = attributes.dexterity;
+        conDisplay.textContent = attributes.constitution;
+        intDisplay.textContent = attributes.intelligence;
+        wisDisplay.textContent = attributes.wisdom;
+        chaDisplay.textContent = attributes.charisma;
+    }
+    
+    // Show race info
+    raceSelect.addEventListener('change', function() {
+        const selectedRace = this.value;
+        if (selectedRace && races[selectedRace]) {
+            raceDescription.textContent = races[selectedRace].description;
+            
+            // Display bonuses
+            raceBonuses.innerHTML = '';
+            const bonuses = races[selectedRace].bonuses;
+            for (const attr in bonuses) {
+                const bonus = document.createElement('div');
+                bonus.className = 'bonus';
+                bonus.textContent = `+${bonuses[attr]} ${attr.charAt(0).toUpperCase() + attr.slice(1)}`;
+                raceBonuses.appendChild(bonus);
+            }
+            
+            raceInfo.classList.remove('hidden');
+        } else {
+            raceInfo.classList.add('hidden');
+        }
+        
+        updateAttributes();
+    });
+    
+    // Show class info
+    classSelect.addEventListener('change', function() {
+        const selectedClass = this.value;
+        if (selectedClass && classes[selectedClass]) {
+            classDescription.textContent = classes[selectedClass].description;
+            
+            // Display bonuses
+            classBonuses.innerHTML = '';
+            const bonuses = classes[selectedClass].bonuses;
+            for (const attr in bonuses) {
+                const bonus = document.createElement('div');
+                bonus.className = 'bonus';
+                bonus.textContent = `+${bonuses[attr]} ${attr.charAt(0).toUpperCase() + attr.slice(1)}`;
+                classBonuses.appendChild(bonus);
+            }
+            
+            classInfo.classList.remove('hidden');
+            
+            // Show portraits for this class
+            portraitContainer.innerHTML = '';
+            if (portraits[selectedClass]) {
+                portraits[selectedClass].forEach(portrait => {
+                    const img = document.createElement('img');
+                    img.src = `/static/images/portraits/${portrait}`;
+                    img.className = 'portrait';
+                    img.alt = portrait;
+                    img.addEventListener('click', function() {
+                        // Remove selected class from all portraits
+                        document.querySelectorAll('.portrait').forEach(p => {
+                            p.classList.remove('selected');
+                        });
+                        
+                        // Add selected class to this portrait
+                        this.classList.add('selected');
+                        
+                        // Update hidden input
+                        selectedPortrait.value = portrait;
+                    });
+                    portraitContainer.appendChild(img);
+                });
+                
+                portraitContainer.classList.remove('hidden');
+            } else {
+                portraitContainer.classList.add('hidden');
+            }
+        } else {
+            classInfo.classList.add('hidden');
+            portraitContainer.classList.add('hidden');
+        }
+        
+        updateAttributes();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dungeon-complete-container">
+    <h1>Dungeon Completed!</h1>
+    <p class="subtitle">Your party has successfully cleared the {{ dungeon.biome }} dungeon!</p>
+    
+    <div class="dungeon-summary">
+        <div class="biome-image">
+            <img src="{{ url_for('static', filename='images/biomes/' + dungeon.biome|lower + '.png') }}" alt="{{ dungeon.biome }}">
+        </div>
+        <div class="dungeon-info">
+            <h2>{{ dungeon.biome }}</h2>
+            <p>{{ dungeon.description }}</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Rooms Cleared:</span>
+                    <span class="stat-value">{{ dungeon.rooms|length }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Challenge Rating:</span>
+                    <span class="stat-value">{{ dungeon.challenge_rating|default('Random') }}</span>
+                </div>
+                {% if dungeon.is_quest %}
+                <div class="stat-item special">
+                    <span class="stat-label">Quest Status:</span>
+                    <span class="stat-value">Completed</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="party-status">
+        <h2>Party Status</h2>
+        <div class="character-grid">
+            {% for character in characters %}
+            <div class="character-card">
+                <div class="character-portrait">
+                    {% if character.portrait %}
+                    <img src="{{ url_for('static', filename='images/portraits/' + character.portrait) }}" alt="{{ character.name }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/portraits/default_' + character.class|lower + '.png') }}" alt="{{ character.name }}">
+                    {% endif %}
+                </div>
+                <div class="character-info">
+                    <h3>{{ character.name }}</h3>
+                    <p>Level {{ character.level }} {{ character.race }} {{ character.class }}</p>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: {{ (character.hp / character.max_hp * 100)|int }}%"></div>
+                        <span class="health-text">HP: {{ character.hp }}/{{ character.max_hp }}</span>
+                    </div>
+                    <p>Gold: {{ character.gold }}</p>
+                    <p>XP: {{ character.xp }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    {% if dungeon.is_quest and dungeon.bonus_rewards %}
+    <div class="quest-rewards">
+        <h2>Special Quest Rewards</h2>
+        <div class="rewards-grid">
+            {% for reward in dungeon.bonus_rewards %}
+            <div class="reward-item">
+                <div class="reward-icon">
+                    {% if reward.type == 'weapon' %}
+                    <img src="{{ url_for('static', filename='images/weapons/' + reward.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ reward.name }}">
+                    {% elif reward.type == 'armor' %}
+                    <img src="{{ url_for('static', filename='images/armor/' + reward.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ reward.name }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/items/' + reward.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ reward.name }}">
+                    {% endif %}
+                </div>
+                <div class="reward-info">
+                    <h3>{{ reward.name }}</h3>
+                    {% if reward.damage %}
+                    <p>Damage: {{ reward.damage }}</p>
+                    {% elif reward.bonus %}
+                    <p>Bonus: +{{ reward.bonus }}</p>
+                    {% endif %}
+                    {% if reward.effect %}
+                    <p>Effect: {{ reward.effect }}</p>
+                    {% endif %}
+                    <p class="value">Value: {{ reward.value }} gold</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="completion-actions">
+        <a href="{{ url_for('visit_inn') }}" class="button">Go to Inn</a>
+        <a href="{{ url_for('start_adventure') }}" class="button">Return to Town</a>
+    </div>
+</div>
+
+<style>
+    .dungeon-complete-container {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    h1 {
+        color: #4CAF50;
+        text-align: center;
+    }
+    
+    .subtitle {
+        color: #666;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .dungeon-summary {
+        display: flex;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .biome-image {
+        width: 200px;
+        height: 150px;
+        margin-right: 20px;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .biome-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .dungeon-info {
+        flex-grow: 1;
+    }
+    
+    .dungeon-info h2 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .stats {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .stat-item {
+        background-color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-item.special {
+        background-color: #e8f5e9;
+        border: 1px solid #4CAF50;
+    }
+    
+    .stat-label {
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .stat-value {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    
+    .party-status {
+        margin-bottom: 30px;
+    }
+    
+    .character-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .character-card {
+        display: flex;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .character-portrait {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+    }
+    
+    .character-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .character-info {
+        flex-grow: 1;
+    }
+    
+    .character-info h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .character-info p {
+        margin: 5px 0;
+        font-size: 0.9em;
+    }
+    
+    .health-bar {
+        height: 15px;
+        background-color: #f0f0f0;
+        border-radius: 7px;
+        overflow: hidden;
+        position: relative;
+        margin: 8px 0;
+    }
+    
+    .health-fill {
+        height: 100%;
+        background-color: #4CAF50;
+    }
+    
+    .health-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 15px;
+        font-size: 12px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .quest-rewards {
+        margin-bottom: 30px;
+    }
+    
+    .rewards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .reward-item {
+        display: flex;
+        background-color: #fff3e0;
+        border: 1px solid #ffcc80;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .reward-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .reward-icon img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    .reward-info {
+        flex-grow: 1;
+    }
+    
+    .reward-info h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .reward-info p {
+        margin: 5px 0;
+    }
+    
+    .value {
+        font-weight: bold;
+        color: #ff9800;
+    }
+    
+    .completion-actions {
+        text-align: center;
+    }
+    
+    .button {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin: 0 10px;
+    }
+</style>
+{% endblock %}

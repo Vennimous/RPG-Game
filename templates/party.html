@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Your Party</h1>
+{% for character in characters %}
+<div class="character-card">
+    <h3>{{ character.name }}</h3>
+    <p>{{ character.race }} {{ character.class }} (Level {{ character.level }})</p>
+    <p>HP: {{ character.hp }}/{{ character.max_hp }}</p>
+    {% if character.ac %}
+    <p>AC: {{ character.ac }}</p>
+    {% endif %}
+    
+    <div class="stats">
+        {% for attr, value in character.attributes.items() %}
+        <div>{{ attr|capitalize }}: {{ value }}</div>
+        {% endfor %}
+    </div>
+    
+    {% if character.equipment %}
+    <h4>Equipment:</h4>
+    <ul>
+        <li>Weapon: {{ character.equipment.weapon }}</li>
+        <li>Armor: {{ character.equipment.armor }}</li>
+        <li>Shield: {{ character.equipment.shield }}</li>
+    </ul>
+    {% endif %}
+    
+    {% if character.spells %}
+    <h4>Spells:</h4>
+    <ul>
+        {% for spell in character.spells %}
+        <li>{{ spell }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endfor %}
+
+<a href="/create_party" class="button">Add Another Character</a>
+<a href="/start_adventure" class="button">Start Adventure</a>
+{% endblock %}

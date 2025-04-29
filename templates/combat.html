@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="combat-scene">
+    <!-- Combat arena with pixel art -->
+    <div class="combat-arena">
+        <div class="enemy-side">
+            {% for enemy in combat.enemies %}
+            {% if enemy.hp > 0 %}
+            <div class="enemy-card">
+                <div class="enemy-sprite">
+                    {% if enemy.name == "Wolf" %}
+                    <img src="{{ url_for('static', filename='images/enemies/wolf.png') }}" alt="Wolf">
+                    {% elif enemy.name == "Goblin" %}
+                    <img src="{{ url_for('static', filename='images/enemies/goblin.png') }}" alt="Goblin">
+                    {% elif enemy.name == "Skeleton" %}
+                    <img src="{{ url_for('static', filename='images/enemies/skeleton.png') }}" alt="Skeleton">
+                    {% elif enemy.name == "Zombie" %}
+                    <img src="{{ url_for('static', filename='images/enemies/zombie.png') }}" alt="Zombie">
+                    {% elif enemy.name == "Ghoul" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ghoul.png') }}" alt="Ghoul">
+                    {% elif enemy.name == "Giant Spider" %}
+                    <img src="{{ url_for('static', filename='images/enemies/spider.png') }}" alt="Giant Spider">
+                    {% elif enemy.name == "Dire Wolf" %}
+                    <img src="{{ url_for('static', filename='images/enemies/dire_wolf.png') }}" alt="Dire Wolf">
+                    {% elif enemy.name == "Ogre" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ogre.png') }}" alt="Ogre">
+                    {% elif enemy.name == "Bugbear" %}
+                    <img src="{{ url_for('static', filename='images/enemies/bugbear.png') }}" alt="Bugbear">
+                    {% elif enemy.name == "Cult Fanatic" %}
+                    <img src="{{ url_for('static', filename='images/enemies/cult_fanatic.png') }}" alt="Cult Fanatic">
+                    {% elif enemy.name == "Gargoyle" %}
+                    <img src="{{ url_for('static', filename='images/enemies/gargoyle.png') }}" alt="Gargoyle">
+                    {% elif enemy.name == "Minotaur Skeleton" %}
+                    <img src="{{ url_for('static', filename='images/enemies/minotaur_skeleton.png') }}" alt="Minotaur Skeleton">
+                    {% elif enemy.name == "Spined Devil" %}
+                    <img src="{{ url_for('static', filename='images/enemies/spined_devil.png') }}" alt="Spined Devil">
+                    {% elif enemy.name == "Basilisk" %}
+                    <img src="{{ url_for('static', filename='images/enemies/basilisk.png') }}" alt="Basilisk">
+                    {% elif enemy.name == "Doppelganger" %}
+                    <img src="{{ url_for('static', filename='images/enemies/doppelganger.png') }}" alt="Doppelganger">
+                    {% elif enemy.name == "Hell Hound" %}
+                    <img src="{{ url_for('static', filename='images/enemies/hell_hound.png') }}" alt="Hell Hound">
+                    {% elif enemy.name == "Manticore" %}
+                    <img src="{{ url_for('static', filename='images/enemies/manticore.png') }}" alt="Manticore">
+                    {% elif enemy.name == "Ettin" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ettin.png') }}" alt="Ettin">
+                    {% elif enemy.name == "Ghost" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ghost.png') }}" alt="Ghost">
+                    {% elif enemy.name == "Lamia" %}
+                    <img src="{{ url_for('static', filename='images/enemies/lamia.png') }}" alt="Lamia">
+                    {% elif enemy.name == "Air Elemental" %}
+                    <img src="{{ url_for('static', filename='images/enemies/air_elemental.png') }}" alt="Air Elemental">
+                    {% elif enemy.name == "Troll" %}
+                    <img src="{{ url_for('static', filename='images/enemies/troll.png') }}" alt="Troll">
+                    {% elif enemy.name == "Vampire Spawn" %}
+                    <img src="{{ url_for('static', filename='images/enemies/vampire_spawn.png') }}" alt="Vampire Spawn">
+                    {% else %}
+                    <div class="placeholder-sprite">{{ enemy.name }}</div>
+                    {% endif %}
+                </div>
+                <div class="enemy-stats">
+                    <div class="name">{{ enemy.name }}</div>
+                    <div class="hp">HP: {{ enemy.hp }}</div>
+                    <div class="cr">CR: {{ enemy.cr }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        
+        <div class="player-side">
+            {% for char in characters %}
+            <div class="character-card {% if char.hp <= 0 %}defeated{% endif %}">
+                <div class="character-sprite">
+                    {% if char.portrait %}
+                    <img src="{{ url_for('static', filename='images/portraits/' + char.portrait) }}" alt="{{ char.name }}">
+                    {% elif char.class == "Warrior" %}
+                    <img src="{{ url_for('static', filename='images/characters/warrior.png') }}" alt="Warrior">
+                    {% elif char.class == "Mage" %}
+                    <img src="{{ url_for('static', filename='images/characters/mage.png') }}" alt="Mage">
+                    {% elif char.class == "Rogue" %}
+                    <img src="{{ url_for('static', filename='images/characters/rogue.png') }}" alt="Rogue">
+                    {% elif char.class == "Priest" %}
+                    <img src="{{ url_for('static', filename='images/characters/priest.png') }}" alt="Priest">
+                    {% else %}
+                    <div class="placeholder-sprite">{{ char.class }}</div>
+                    {% endif %}
+                </div>
+                <div class="character-stats">
+                    <div class="name">{{ char.name }}</div>
+                    <div class="hp">HP: {{ char.hp }}/{{ char.max_hp }}</div>
+                    {% if char.hp <= 0 %}
+                    <div class="status defeated">Defeated</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Combat Status -->
+    <div class="combat-status">
+        <h3>Round {{ combat.round }}</h3>
+        <p>Next action: 
+        {% if combat.initiative_order[combat.current_actor_index].type == 'character' %}
+            {{ characters[combat.initiative_order[combat.current_actor_index].index].name }}'s turn
+        {% else %}
+            {{ combat.enemies[combat.initiative_order[combat.current_actor_index].enemy_index].name }}'s turn
+        {% endif %}
+        </p>
+    </div>
+    
+    <!-- Combat log -->
+    <div class="combat-log">
+        <h3>Combat Log</h3>
+        <div class="log-entries">
+            {% for entry in combat.log %}
+            <div class="log-entry">{{ entry }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .combat-scene {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .combat-arena {
+        display: flex;
+        justify-content: space-between;
+        min-height: 250px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .enemy-side, .player-side {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .enemy-side {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 20px;
+        width: 60%;
+    }
+    
+    .player-side {
+        width: 40%;
+        justify-content: flex-start;
+    }
+    
+    .enemy-card, .character-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgba(255,255,255,0.7);
+        border-radius: 10px;
+        padding: 15px;
+        border: 1px solid #ddd;
+    }
+    
+    .character-card.defeated {
+        opacity: 0.5;
+        border-color: #f44336;
+    }
+    
+    .enemy-sprite, .character-sprite {
+        width: 96px;
+        height: 96px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    
+    .enemy-sprite img, .character-sprite img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    .placeholder-sprite {
+        width: 80px;
+        height: 80px;
+        background-color: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .enemy-stats, .character-stats {
+        text-align: center;
+    }
+    
+    .name {
+        font-weight: bold;
+        font-size: 1.2em;
+        margin-bottom: 5px;
+    }
+    
+    .hp {
+        color: #d33;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .cr {
+        color: #666;
+        font-size: 0.9em;
+    }
+    
+    .status {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+    
+    .status.defeated {
+        background-color: #f44336;
+        color: white;
+    }
+    
+    .combat-status {
+        text-align: center;
+        background-color: #e0f0e0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .combat-log {
+        height: 150px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .log-entries {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+    
+    .log-entry {
+        margin-bottom: 5px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+    }
+</style>
+
+<!-- Add a redirect to the combat_action route -->
+<script>
+    window.onload = function() {
+        window.location.href = "{{ url_for('combat_action') }}";
+    }
+</script>
+{% endblock %}

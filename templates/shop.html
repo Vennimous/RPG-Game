@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="shop-container">
+    <div class="shop-header">
+        <h1>The Adventurer's Emporium</h1>
+        <p class="description">A well-stocked shop with everything an adventurer needs.</p>
+    </div>
+    
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <div class="shop-sidebar">
+        <h2>Your Characters</h2>
+        <div class="character-list">
+            {% for i, character in enumerate(characters) %}
+            <div class="character-item {% if selected_character_index == i %}selected{% endif %}">
+                <a href="{{ url_for('visit_shop', character_index=i) }}">
+                    <div class="character-portrait">
+                        {% if character.portrait %}
+                        <img src="{{ url_for('static', filename='images/portraits/' + character.portrait) }}" alt="{{ character.name }}">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/portraits/default_' + character.class|lower + '.png') }}" alt="{{ character.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="character-info">
+                        <h3>{{ character.name }}</h3>
+                        <p>{{ character.gold }} gold</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="shop-main">
+        {% if selected_character_index is not none %}
+        <div class="selected-character-banner">
+            <h2>Shopping for: {{ characters[selected_character_index].name }}</h2>
+            <div class="character-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Class:</span>
+                    <span class="stat-value">{{ characters[selected_character_index].class }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Gold:</span>
+                    <span class="stat-value">{{ characters[selected_character_index].gold }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">AC:</span>
+                    <span class="stat-value">{{ characters[selected_character_index].ac }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="shop-tabs">
+            <div class="tab-links">
+                <a href="#weapons" class="tab-link active">Weapons</a>
+                <a href="#armor" class="tab-link">Armor</a>
+                <a href="#shields" class="tab-link">Shields</a>
+                <a href="#potions" class="tab-link">Potions</a>
+                <a href="#scrolls" class="tab-link">Scrolls</a>
+                <a href="#magic_items" class="tab-link">Magic Items</a>
+            </div>
+            
+            <div class="tab-content">
+                <div id="weapons" class="tab-pane active">
+                    <h2>Weapons</h2>
+                    <div class="item-grid">
+                        {% for weapon in inventory.weapons %}
+                        <div class="shop-item">
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='images/weapons/' + weapon.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ weapon.name }}">
+                            </div>
+                            <div class="item-info">
+                                <h3>{{ weapon.name }}</h3>
+                                <p>Damage: {{ weapon.damage }}</p>
+                                <p>Type: {{ weapon.type }}</p>
+                                <div class="item-price">{{ weapon.cost }} gold</div>
+                                {% if selected_character_index is not none %}
+                                <a href="{{ url_for('buy_item', item_type='weapons', item_name=weapon.name, character_index=selected_character_index) }}" class="button buy-button {% if characters[selected_character_index].gold < weapon.cost %}disabled{% endif %}">
+                                    {% if characters[selected_character_index].gold >= weapon.cost %}
+                                    Buy
+                                    {% else %}
+                                    Not enough gold
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div id="armor" class="tab-pane">
+                    <h2>Armor</h2>
+                    <div class="item-grid">
+                        {% for armor in inventory.armor %}
+                        <div class="shop-item">
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='images/armor/' + armor.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ armor.name }}">
+                            </div>
+                            <div class="item-info">
+                                <h3>{{ armor.name }}</h3>
+                                <p>AC Bonus: +{{ armor.ac_bonus }}</p>
+                                <div class="item-price">{{ armor.cost }} gold</div>
+                                {% if selected_character_index is not none %}
+                                <a href="{{ url_for('buy_item', item_type='armor', item_name=armor.name, character_index=selected_character_index) }}" class="button buy-button {% if characters[selected_character_index].gold < armor.cost %}disabled{% endif %}">
+                                    {% if characters[selected_character_index].gold >= armor.cost %}
+                                    Buy
+                                    {% else %}
+                                    Not enough gold
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div id="shields" class="tab-pane">
+                    <h2>Shields</h2>
+                    <div class="item-grid">
+                        {% for shield in inventory.shields %}
+                        <div class="shop-item">
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='images/items/' + shield.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ shield.name }}">
+                            </div>
+                            <div class="item-info">
+                                <h3>{{ shield.name }}</h3>
+                                <p>AC Bonus: +{{ shield.ac_bonus }}</p>
+                                <div class="item-price">{{ shield.cost }} gold</div>
+                                {% if selected_character_index is not none %}
+                                <a href="{{ url_for('buy_item', item_type='shields', item_name=shield.name, character_index=selected_character_index) }}" class="button buy-button {% if characters[selected_character_index].gold < shield.cost %}disabled{% endif %}">
+                                    {% if characters[selected_character_index].gold >= shield.cost %}
+                                    Buy
+                                    {% else %}
+                                    Not enough gold
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div id="potions" class="tab-pane">
+                    <h2>Potions</h2>
+                    <div class="item-grid">
+                        {% for potion in inventory.potions %}
+                        <div class="shop-item">
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='images/items/' + potion.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ potion.name }}">
+                            </div>
+                            <div class="item-info">
+                                <h3>{{ potion.name }}</h3>
+                                <p>{{ potion.effect }}</p>
+                                <div class="item-price">{{ potion.cost }} gold</div>
+                                {% if selected_character_index is not none %}
+                                <a href="{{ url_for('buy_item', item_type='potions', item_name=potion.name, character_index=selected_character_index) }}" class="button buy-button {% if characters[selected_character_index].gold < potion.cost %}disabled{% endif %}">
+                                    {% if characters[selected_character_index].gold >= potion.cost %}
+                                    Buy
+                                    {% else %}
+                                    Not enough gold
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div id="scrolls" class="tab-pane">
+                    <h2>Scrolls</h2>
+                    <div class="item-grid">
+                        {% for scroll in inventory.scrolls %}
+                        <div class="shop-item">
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='images/items/' + scroll.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ scroll.name }}">
+                            </div>
+                            <div class="item-info">
+                                <h3>{{ scroll.name }}</h3>
+                                <p>{{ scroll.effect }}</p>
+                                <div class="item-price">{{ scroll.cost }} gold</div>
+                                {% if selected_character_index is not none %}
+                                <a href="{{ url_for('buy_item', item_type='scrolls', item_name=scroll.name, character_index=selected_character_index) }}" class="button buy-button {% if characters[selected_character_index].gold < scroll.cost %}disabled{% endif %}">
+                                    {% if characters[selected_character_index].gold >= scroll.cost %}
+                                    Buy
+                                    {% else %}
+                                    Not enough gold
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div id="magic_items" class="tab-pane">
+                    <h2>Magic Items</h2>
+                    <div class="item-grid">
+                        {% for item in inventory.magic_items %}
+                        <div class="shop-item">
+                            <div class="item-image">
+                                <img src="{{ url_for('static', filename='images/items/' + item.name|lower|replace('+', 'plus')|replace(' ', '_') + '.png') }}" alt="{{ item.name }}">
+                            </div>
+                            <div class="item-info">
+                                <h3>{{ item.name }}</h3>
+                                {% if item.damage %}
+                                <p>Damage: {{ item.damage }}</p>
+                                {% elif item.ac_bonus %}
+                                <p>AC Bonus: +{{ item.ac_bonus }}</p>
+                                {% endif %}
+                                <p>{{ item.effect }}</p>
+                                <div class="item-price">{{ item.cost }} gold</div>
+                                {% if selected_character_index is not none %}
+                                <a href="{{ url_for('buy_item', item_type='magic_items', item_name=item.name, character_index=selected_character_index) }}" class="button buy-button {% if characters[selected_character_index].gold < item.cost %}disabled{% endif %}">
+                                    {% if characters[selected_character_index].gold >= item.cost %}
+                                    Buy
+                                    {% else %}
+                                    Not enough gold
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="shop-footer">
+        <a href="{{ url_for('start_adventure') }}" class="button">Return to Town</a>
+    </div>
+</div>
+
+<style>
+    .shop-container {
+        padding: 20px 0;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .shop-header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .description {
+        color: #666;
+        font-size: 1.1em;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    
+    .shop-sidebar {
+        width: 250px;
+        margin-right: 30px;
+    }
+    
+    .shop-main {
+        flex-grow: 1;
+        width: calc(100% - 280px);
+    }
+    
+    .character-list {
+        margin-top: 20px;
+    }
+    
+    .character-item {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+        overflow: hidden;
+    }
+    
+    .character-item.selected {
+        border-color: #4CAF50;
+        background-color: #e8f5e9;
+    }
+    
+    .character-item a {
+        display: flex;
+        padding: 10px;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .character-portrait {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+    
+    .character-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .character-info h3 {
+        margin: 0;
+        font-size: 1em;
+    }
+    
+    .character-info p {
+        margin: 5px 0 0 0;
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .selected-character-banner {
+        background-color: #f0f0f0;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .selected-character-banner h2 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .character-stats {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-label {
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .stat-value {
+        font-weight: bold;
+    }
+    
+    .shop-tabs {
+        margin-top: 20px;
+    }
+    
+    .tab-links {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .tab-link {
+        padding: 10px 15px;
+        margin-right: 5px;
+        text-decoration: none;
+        color: #666;
+        border-radius: 5px 5px 0 0;
+    }
+    
+    .tab-link.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .tab-pane {
+        display: none;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    .item-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .shop-item {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #f9f9f9;
+    }
+    
+    .item-image {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        padding: 10px;
+    }
+    
+    .item-image img {
+        max-height: 100%;
+        max-width: 100%;
+    }
+    
+    .item-info {
+        padding: 15px;
+    }
+    
+    .item-info h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .item-info p {
+        margin: 5px 0;
+    }
+    
+    .item-price {
+        font-weight: bold;
+        color: #4CAF50;
+        margin: 10px 0;
+    }
+    
+    .buy-button {
+        display: block;
+        text-align: center;
+    }
+    
+    .buy-button.disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .shop-footer {
+        width: 100%;
+        text-align: center;
+        margin-top: 30px;
+    }
+</style>
+
+<script>
+    // Tab functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show default tab
+        document.getElementById('weapons').classList.add('active');
+        
+        // Add click handlers to tabs
+        const tabLinks = document.querySelectorAll('.tab-link');
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Hide all tab panes
+                const tabPanes = document.querySelectorAll('.tab-pane');
+                tabPanes.forEach(pane => {
+                    pane.classList.remove('active');
+                });
+                
+                // Remove active class from all tab links
+                tabLinks.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab pane
+                const tabId = this.getAttribute('href').substring(1);
+                document.getElementById(tabId).classList.add('active');
+                
+                // Add active class to clicked tab link
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

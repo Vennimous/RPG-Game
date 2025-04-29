@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dungeon">
+    <h1>{{ dungeon.biome }} Dungeon</h1>
+    <p>{{ dungeon.description }}</p>
+    
+    <div class="dungeon-progress">
+        <h3>Progress: Room {{ dungeon.current_room + 1 }} of {{ dungeon.rooms|length }}</h3>
+        <div class="progress-bar">
+            {% for i in range(dungeon.rooms|length) %}
+            <div class="progress-segment {% if i < dungeon.current_room %}completed{% elif i == dungeon.current_room %}current{% else %}upcoming{% endif %}"></div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="current-room">
+        <h2>{{ dungeon.rooms[dungeon.current_room].description }}</h2>
+        
+        {% if not dungeon.rooms[dungeon.current_room].completed %}
+            <div class="encounter">
+                <h3>Enemies Encountered:</h3>
+                <div class="enemy-list">
+                    {% for enemy in dungeon.rooms[dungeon.current_room].enemies %}
+                    <div class="enemy-preview">
+                        <div class="enemy-image">
+                            {% if enemy.name == "Wolf" %}
+                            <img src="{{ url_for('static', filename='images/enemies/wolf.png') }}" alt="Wolf">
+                            {% elif enemy.name == "Goblin" %}
+                            <img src="{{ url_for('static', filename='images/enemies/goblin.png') }}" alt="Goblin">
+                            {% elif enemy.name == "Skeleton" %}
+                            <img src="{{ url_for('static', filename='images/enemies/skeleton.png') }}" alt="Skeleton">
+                            {% elif enemy.name == "Zombie" %}
+                            <img src="{{ url_for('static', filename='images/enemies/zombie.png') }}" alt="Zombie">
+                            {% elif enemy.name == "Ghoul" %}
+                            <img src="{{ url_for('static', filename='images/enemies/ghoul.png') }}" alt="Ghoul">
+                            {% elif enemy.name == "Giant Spider" %}
+                            <img src="{{ url_for('static', filename='images/enemies/spider.png') }}" alt="Giant Spider">
+                            {% elif enemy.name == "Dire Wolf" %}
+                            <img src="{{ url_for('static', filename='images/enemies/dire_wolf.png') }}" alt="Dire Wolf">
+                            {% elif enemy.name == "Ogre" %}
+                            <img src="{{ url_for('static', filename='images/enemies/ogre.png') }}" alt="Ogre">
+                            {% elif enemy.name == "Bugbear" %}
+                            <img src="{{ url_for('static', filename='images/enemies/bugbear.png') }}" alt="Bugbear">
+                            {% elif enemy.name == "Cult Fanatic" %}
+                            <img src="{{ url_for('static', filename='images/enemies/cult_fanatic.png') }}" alt="Cult Fanatic">
+                            {% elif enemy.name == "Gargoyle" %}
+                            <img src="{{ url_for('static', filename='images/enemies/gargoyle.png') }}" alt="Gargoyle">
+                            {% elif enemy.name == "Minotaur Skeleton" %}
+                            <img src="{{ url_for('static', filename='images/enemies/minotaur_skeleton.png') }}" alt="Minotaur Skeleton">
+                            {% elif enemy.name == "Spined Devil" %}
+                            <img src="{{ url_for('static', filename='images/enemies/spined_devil.png') }}" alt="Spined Devil">
+                            {% elif enemy.name == "Basilisk" %}
+                            <img src="{{ url_for('static', filename='images/enemies/basilisk.png') }}" alt="Basilisk">
+                            {% elif enemy.name == "Doppelganger" %}
+                            <img src="{{ url_for('static', filename='images/enemies/doppelganger.png') }}" alt="Doppelganger">
+                            {% elif enemy.name == "Hell Hound" %}
+                            <img src="{{ url_for('static', filename='images/enemies/hell_hound.png') }}" alt="Hell Hound">
+                            {% elif enemy.name == "Manticore" %}
+                            <img src="{{ url_for('static', filename='images/enemies/manticore.png') }}" alt="Manticore">
+                            {% elif enemy.name == "Ettin" %}
+                            <img src="{{ url_for('static', filename='images/enemies/ettin.png') }}" alt="Ettin">
+                            {% elif enemy.name == "Ghost" %}
+                            <img src="{{ url_for('static', filename='images/enemies/ghost.png') }}" alt="Ghost">
+                            {% elif enemy.name == "Lamia" %}
+                            <img src="{{ url_for('static', filename='images/enemies/lamia.png') }}" alt="Lamia">
+                            {% elif enemy.name == "Air Elemental" %}
+                            <img src="{{ url_for('static', filename='images/enemies/air_elemental.png') }}" alt="Air Elemental">
+                            {% elif enemy.name == "Troll" %}
+                            <img src="{{ url_for('static', filename='images/enemies/troll.png') }}" alt="Troll">
+                            {% elif enemy.name == "Vampire Spawn" %}
+                            <img src="{{ url_for('static', filename='images/enemies/vampire_spawn.png') }}" alt="Vampire Spawn">
+                            {% else %}
+                            <div class="placeholder-sprite">{{ enemy.name }}</div>
+                            {% endif %}
+                        </div>
+                        <p>{{ enemy.name }}</p>
+                        <p>CR: {{ enemy.cr }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="action-buttons">
+                    <a href="{{ url_for('start_combat', room_index=dungeon.current_room) }}" class="button fight-button">Fight!</a>
+                    <a href="{{ url_for('start_adventure') }}" class="button retreat-button">Retreat to Town</a>
+                </div>
+            </div>
+        {% else %}
+            <p>This room has been cleared.</p>
+            <div class="action-buttons">
+                <a href="{{ url_for('between_rooms') }}" class="button">Take a Break</a>
+                <a href="{{ url_for('next_room') }}" class="button">Continue to Next Room</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="party-preview">
+        <h3>Party Status:</h3>
+        <div class="character-previews">
+            {% for character in characters %}
+            <div class="character-preview">
+                <p>{{ character.name }}</p>
+                <div class="health-bar mini">
+                    <div class="health-fill" style="width: {{ (character.hp / character.max_hp * 100)|int }}%"></div>
+                    <span class="health-text">{{ character.hp }}/{{ character.max_hp }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .dungeon {
+        padding: 20px;
+    }
+    
+    .dungeon-progress {
+        margin: 20px 0;
+    }
+    
+    .progress-bar {
+        display: flex;
+        gap: 5px;
+        margin-top: 10px;
+    }
+    
+    .progress-segment {
+        flex: 1;
+        height: 10px;
+        background-color: #ddd;
+        border-radius: 5px;
+    }
+    
+    .progress-segment.completed {
+        background-color: #4CAF50;
+    }
+    
+    .progress-segment.current {
+        background-color: #2196F3;
+    }
+    
+    .current-room {
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .encounter {
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .enemy-list {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+    }
+    
+    .enemy-preview, .character-preview {
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    
+    .enemy-image {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .enemy-image img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    .action-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .button {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+    
+    .fight-button {
+        background-color: #f44336;
+    }
+    
+    .retreat-button {
+        background-color: #2196F3;
+    }
+    
+    .party-preview {
+        margin-top: 30px;
+    }
+    
+    .character-previews {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .health-bar {
+        height: 20px;
+        width: 100%;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .health-bar.mini {
+        height: 15px;
+        width: 100px;
+    }
+    
+    .health-fill {
+        height: 100%;
+        background-color: #4CAF50;
+    }
+    
+    .health-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 20px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+        font-size: 12px;
+    }
+    
+    .placeholder-sprite {
+        width: 100%;
+        height: 100%;
+        background-color: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}

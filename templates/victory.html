@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="victory-container">
+    <h1>Victory!</h1>
+    <p class="subtitle">Your party has emerged victorious!</p>
+    
+    <div class="defeated-enemies">
+        <h2>Defeated Enemies:</h2>
+        <div class="enemy-grid">
+            {% for enemy in enemies %}
+            <div class="enemy-card">
+                <div class="enemy-image">
+                    {% if enemy.name == "Wolf" %}
+                    <img src="{{ url_for('static', filename='images/enemies/wolf.png') }}" alt="Wolf">
+                    {% elif enemy.name == "Goblin" %}
+                    <img src="{{ url_for('static', filename='images/enemies/goblin.png') }}" alt="Goblin">
+                    {% elif enemy.name == "Skeleton" %}
+                    <img src="{{ url_for('static', filename='images/enemies/skeleton.png') }}" alt="Skeleton">
+                    {% elif enemy.name == "Zombie" %}
+                    <img src="{{ url_for('static', filename='images/enemies/zombie.png') }}" alt="Zombie">
+                    {% elif enemy.name == "Ghoul" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ghoul.png') }}" alt="Ghoul">
+                    {% elif enemy.name == "Giant Spider" %}
+                    <img src="{{ url_for('static', filename='images/enemies/spider.png') }}" alt="Giant Spider">
+                    {% elif enemy.name == "Dire Wolf" %}
+                    <img src="{{ url_for('static', filename='images/enemies/dire_wolf.png') }}" alt="Dire Wolf">
+                    {% elif enemy.name == "Ogre" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ogre.png') }}" alt="Ogre">
+                    {% elif enemy.name == "Bugbear" %}
+                    <img src="{{ url_for('static', filename='images/enemies/bugbear.png') }}" alt="Bugbear">
+                    {% elif enemy.name == "Cult Fanatic" %}
+                    <img src="{{ url_for('static', filename='images/enemies/cult_fanatic.png') }}" alt="Cult Fanatic">
+                    {% elif enemy.name == "Gargoyle" %}
+                    <img src="{{ url_for('static', filename='images/enemies/gargoyle.png') }}" alt="Gargoyle">
+                    {% elif enemy.name == "Minotaur Skeleton" %}
+                    <img src="{{ url_for('static', filename='images/enemies/minotaur_skeleton.png') }}" alt="Minotaur Skeleton">
+                    {% elif enemy.name == "Spined Devil" %}
+                    <img src="{{ url_for('static', filename='images/enemies/spined_devil.png') }}" alt="Spined Devil">
+                    {% elif enemy.name == "Basilisk" %}
+                    <img src="{{ url_for('static', filename='images/enemies/basilisk.png') }}" alt="Basilisk">
+                    {% elif enemy.name == "Doppelganger" %}
+                    <img src="{{ url_for('static', filename='images/enemies/doppelganger.png') }}" alt="Doppelganger">
+                    {% elif enemy.name == "Hell Hound" %}
+                    <img src="{{ url_for('static', filename='images/enemies/hell_hound.png') }}" alt="Hell Hound">
+                    {% elif enemy.name == "Manticore" %}
+                    <img src="{{ url_for('static', filename='images/enemies/manticore.png') }}" alt="Manticore">
+                    {% elif enemy.name == "Ettin" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ettin.png') }}" alt="Ettin">
+                    {% elif enemy.name == "Ghost" %}
+                    <img src="{{ url_for('static', filename='images/enemies/ghost.png') }}" alt="Ghost">
+                    {% elif enemy.name == "Lamia" %}
+                    <img src="{{ url_for('static', filename='images/enemies/lamia.png') }}" alt="Lamia">
+                    {% elif enemy.name == "Air Elemental" %}
+                    <img src="{{ url_for('static', filename='images/enemies/air_elemental.png') }}" alt="Air Elemental">
+                    {% elif enemy.name == "Troll" %}
+                    <img src="{{ url_for('static', filename='images/enemies/troll.png') }}" alt="Troll">
+                    {% elif enemy.name == "Vampire Spawn" %}
+                    <img src="{{ url_for('static', filename='images/enemies/vampire_spawn.png') }}" alt="Vampire Spawn">
+                    {% else %}
+                    <div class="placeholder-sprite">{{ enemy.name }}</div>
+                    {% endif %}
+                </div>
+                <div class="enemy-info">
+                    <h3>{{ enemy.name }}</h3>
+                    <p>CR: {{ enemy.cr }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="rewards-section">
+        <h2>Rewards:</h2>
+        <div class="rewards-grid">
+            <div class="reward-item">
+                <div class="reward-icon">
+                    <img src="{{ url_for('static', filename='images/icons/gold.png') }}" alt="Gold">
+                </div>
+                <div class="reward-details">
+                    <h3>Gold</h3>
+                    <p>{{ total_gold }} gold pieces</p>
+                    <p class="share">({{ total_gold // characters|length }} per character)</p>
+                </div>
+            </div>
+            
+            <div class="reward-item">
+                <div class="reward-icon">
+                    <img src="{{ url_for('static', filename='images/icons/xp.png') }}" alt="XP">
+                </div>
+                <div class="reward-details">
+                    <h3>Experience</h3>
+                    <p>{{ total_xp }} XP</p>
+                    <p class="share">({{ total_xp // characters|length }} per character)</p>
+                </div>
+            </div>
+            
+            {% if quest_reward %}
+            <div class="reward-item special">
+                <div class="reward-icon">
+                    <img src="{{ url_for('static', filename='images/icons/treasure.png') }}" alt="Special Reward">
+                </div>
+                <div class="reward-details">
+                    <h3>Special Quest Rewards</h3>
+                    <ul class="quest-rewards">
+                        {% for reward in quest_reward %}
+                        <li>{{ reward.name }} - {{ reward.effect if reward.effect else reward.damage if reward.damage else '+' + reward.bonus|string if reward.bonus else '' }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="victory-actions">
+        <a href="{{ url_for('next_room') }}" class="button">Continue Adventure</a>
+        <a href="{{ url_for('start_adventure') }}" class="button">Return to Town</a>
+    </div>
+</div>
+
+<style>
+    .victory-container {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .subtitle {
+        color: #666;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .defeated-enemies {
+        margin-bottom: 30px;
+    }
+    
+    .enemy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .enemy-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        text-align: center;
+    }
+    
+    .enemy-image {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    
+    .enemy-image img {
+        max-height: 100%;
+        max-width: 100%;
+    }
+    
+    .enemy-info h3 {
+        margin: 0 0 5px 0;
+        font-size: 1em;
+    }
+    
+    .enemy-info p {
+        margin: 0;
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .rewards-section {
+        margin-bottom: 30px;
+    }
+    
+    .rewards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .reward-item {
+        display: flex;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .reward-item.special {
+        background-color: #fff3e0;
+        border: 1px solid #ffcc80;
+    }
+    
+    .reward-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .reward-icon img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    .reward-details {
+        flex-grow: 1;
+    }
+    
+    .reward-details h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .reward-details p {
+        margin: 5px 0;
+    }
+    
+    .share {
+        font-size: 0.9em;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .quest-rewards {
+        padding-left: 20px;
+        margin: 10px 0 0 0;
+    }
+    
+    .quest-rewards li {
+        margin-bottom: 5px;
+    }
+    
+    .victory-actions {
+        text-align: center;
+    }
+    
+    .button {
+        margin: 0 10px;
+    }
+    
+    .placeholder-sprite {
+        width: 100%;
+        height: 100%;
+        background-color: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}

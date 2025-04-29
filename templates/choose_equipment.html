@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Choose Equipment for {{ character.name }}</h1>
+<p class="subtitle">{{ character.race }} {{ character.class }}</p>
+
+<form action="/equip_character/{{ character_index }}" method="POST">
+    <div class="equipment-section">
+        <h2>Choose your weapon:</h2>
+        <div class="equipment-grid">
+            {% for weapon in equipment.weapons %}
+            <div class="equipment-card">
+                <div class="equipment-image">
+                    <img src="{{ url_for('static', filename='images/weapons/' + weapon|lower + '.png') }}" alt="{{ weapon }}">
+                </div>
+                <div class="equipment-info">
+                    <h3>{{ weapon }}</h3>
+                    <p>Damage: {{ weapon_properties[weapon].damage }}</p>
+                    <p>Type: {{ weapon_properties[weapon].type }}</p>
+                    <p>{{ weapon_properties[weapon].description }}</p>
+                </div>
+                <div class="equipment-select">
+                    <input type="radio" name="weapon" value="{{ weapon }}" required>
+                    <label>Select</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="equipment-section">
+        <h2>Choose your armor:</h2>
+        <div class="equipment-grid">
+            {% for armor in equipment.armor %}
+            <div class="equipment-card">
+                <div class="equipment-image">
+                    <img src="{{ url_for('static', filename='images/armor/' + armor|lower|replace(' ', '_') + '.png') }}" alt="{{ armor }}">
+                </div>
+                <div class="equipment-info">
+                    <h3>{{ armor }}</h3>
+                    <p>AC Bonus: +{{ armor_properties[armor].ac_bonus }}</p>
+                    <p>{{ armor_properties[armor].description }}</p>
+                </div>
+                <div class="equipment-select">
+                    <input type="radio" name="armor" value="{{ armor }}" required>
+                    <label>Select</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="equipment-section">
+        <h2>Choose an item:</h2>
+        <div class="equipment-grid">
+            {% for item in equipment.items %}
+            <div class="equipment-card">
+                <div class="equipment-image">
+                    <img src="{{ url_for('static', filename='images/items/' + item|lower|replace(' ', '_') + '.png') }}" alt="{{ item }}">
+                </div>
+                <div class="equipment-info">
+                    <h3>{{ item }}</h3>
+                    <p>Effect: {{ item_properties[item].effect }}</p>
+                    <p>{{ item_properties[item].description }}</p>
+                </div>
+                <div class="equipment-select">
+                    <input type="radio" name="item" value="{{ item }}" required>
+                    <label>Select</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <button type="submit" class="button">Confirm Equipment</button>
+</form>
+
+<style>
+    .subtitle {
+        color: #666;
+        margin-top: -10px;
+        margin-bottom: 20px;
+    }
+    
+    .equipment-section {
+        margin-bottom: 30px;
+    }
+    
+    .equipment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .equipment-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .equipment-image {
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .equipment-image img {
+        max-height: 100%;
+        max-width: 100%;
+    }
+    
+    .equipment-info {
+        flex-grow: 1;
+    }
+    
+    .equipment-info h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .equipment-info p {
+        margin: 5px 0;
+    }
+    
+    .equipment-select {
+        margin-top: 10px;
+        text-align: center;
+    }
+    
+    .button {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

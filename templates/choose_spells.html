@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Choose Spells for {{ character.name }}</h1>
+
+<form action="/assign_spells/{{ character_index }}" method="POST">
+    <h3>Choose 2 spells:</h3>
+    {% for spell in spells %}
+    <div>
+        <input type="checkbox" name="spells" value="{{ spell }}">
+        <label>{{ spell }}</label>
+    </div>
+    {% endfor %}
+    
+    <button type="submit" class="button">Confirm Spells</button>
+</form>
+{% endblock %}

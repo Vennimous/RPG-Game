@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dungeon-selection">
+    <h1>Choose Your Adventure</h1>
+    <p class="description">Customize the challenge level and environment for your next adventure.</p>
+    
+    <div class="party-preview">
+        <h2>Your Party</h2>
+        <div class="party-grid">
+            {% for character in characters %}
+            <div class="character-card">
+                <div class="character-portrait">
+                    {% if character.portrait %}
+                    <img src="{{ url_for('static', filename='images/portraits/' + character.portrait) }}" alt="{{ character.name }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/portraits/default_' + character.class|lower + '.png') }}" alt="{{ character.name }}">
+                    {% endif %}
+                </div>
+                <div class="character-info">
+                    <h3>{{ character.name }}</h3>
+                    <p>Level {{ character.level }} {{ character.race }} {{ character.class }}</p>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: {{ (character.hp / character.max_hp * 100)|int }}%"></div>
+                        <span class="health-text">HP: {{ character.hp }}/{{ character.max_hp }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="selection-container">
+        <form action="{{ url_for('create_custom_dungeon') }}" method="POST">
+            <div class="form-section">
+                <h2>Choose Biome</h2>
+                <div class="biome-grid">
+                    {% for biome in biomes %}
+                    <div class="biome-card">
+                        <input type="radio" name="biome" id="biome-{{ biome }}" value="{{ biome }}" required>
+                        <label for="biome-{{ biome }}">
+                            <div class="biome-image">
+                                <img src="{{ url_for('static', filename='images/biomes/' + biome|lower + '.png') }}" alt="{{ biome }}">
+                            </div>
+                            <div class="biome-name">{{ biome }}</div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>Choose Challenge Rating</h2>
+                <div class="cr-selector">
+                    {% for cr in available_cr %}
+                    <div class="cr-option">
+                        <input type="radio" name="challenge_rating" id="cr-{{ cr }}" value="{{ cr }}" required>
+                        <label for="cr-{{ cr }}">
+                            CR {{ cr }}
+                            <div class="cr-description">
+                                {% if cr == 0.5 %}
+                                Easy for beginners
+                                {% elif cr == 1 %}
+                                Balanced challenge
+                                {% elif cr == 2 %}
+                                Moderately difficult
+                                {% elif cr == 3 %}
+                                Challenging
+                                {% elif cr == 4 %}
+                                Very difficult
+                                {% elif cr == 5 %}
+                                Extremely challenging
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button">Begin Adventure</button>
+                <a href="{{ url_for('start_adventure') }}" class="button secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .dungeon-selection {
+        padding: 20px 0;
+    }
+    
+    .description {
+        color: #666;
+        font-size: 1.1em;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .party-preview {
+        margin-bottom: 30px;
+    }
+    
+    .party-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .character-card {
+        display: flex;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .character-portrait {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+    }
+    
+    .character-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .character-info {
+        flex-grow: 1;
+    }
+    
+    .character-info h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .character-info p {
+        margin: 0 0 10px 0;
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .health-bar {
+        height: 15px;
+        background-color: #f0f0f0;
+        border-radius: 7px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .health-fill {
+        height: 100%;
+        background-color: #4CAF50;
+    }
+    
+    .health-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 15px;
+        font-size: 12px;
+        color: white;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .selection-container {
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .form-section h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+    
+    .biome-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .biome-card {
+        position: relative;
+    }
+    
+    .biome-card input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .biome-card label {
+        display: block;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 5px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+    
+    .biome-card input[type="radio"]:checked + label {
+        border-color: #4CAF50;
+    }
+    
+    .biome-image {
+        height: 100px;
+        overflow: hidden;
+    }
+    
+    .biome-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .biome-name {
+        padding: 10px;
+        text-align: center;
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    
+    .cr-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .cr-option {
+        position: relative;
+        width: 150px;
+    }
+    
+    .cr-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .cr-option label {
+        display: block;
+        padding: 15px;
+        border: 2px solid transparent;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .cr-option input[type="radio"]:checked + label {
+        border-color: #4CAF50;
+        background-color: #e8f5e9;
+    }
+    
+    .cr-description {
+        font-size: 0.9em;
+        font-weight: normal;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .button {
+        margin: 0 10px;
+    }
+    
+    .button.secondary {
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Welcome to RPG Game</h1>
+<div>
+    <h2>Start Your Adventure</h2>
+    <form action="/create_party" method="GET">
+        <button type="submit" class="button">Create New Party</button>
+    </form>
+</div>
+{% endblock %}
